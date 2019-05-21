@@ -1,11 +1,11 @@
-def calculateScore(guessedLetter,score):
-            frequestLetters="aeiou"
-            if(guessedLetter in frequestLetters):
-                score=score-2
-            else:
-                score=score+10
+from stringDatabase import letter_frequency
 
-            return score   
+
+
+def calculateScore(guessedLetter,score):
+    individualCharscore=score+letter_frequency[guessedLetter]
+
+    return individualCharscore   
 
 def printResults(gameList):
     finalScore=0
@@ -18,3 +18,11 @@ def printResults(gameList):
     
     print('\n')
     print("Final Score :"+str(finalScore))
+
+def calculateWordScore(guessedChars,word):
+    score=0
+    for i in range(len(word)):
+        if(word[i]!=guessedChars[i]):
+            score=score+letter_frequency[word[i]]
+
+    return score

@@ -2,6 +2,7 @@ import os
 import random
 import game
 import stringDatabase
+from stringDatabase import letter_frequency
 
 reset=True
 guessedCharCount=0
@@ -10,8 +11,10 @@ score=0
 gameCount=0
 badGuess=0
 missedLetters=0
-middleGame=0
+middleGame=1
 gameList = []
+option = 'n'
+lettersCount=0
 
 # define the function blocks
 def saveData(gameCount,current_word,status,badGuessPar,missedLettersPar,scorePar):
@@ -30,12 +33,15 @@ def saveData(gameCount,current_word,status,badGuessPar,missedLettersPar,scorePar
     global missedLetters
     global badGuess
     global score
-    
+    global lettersCount
+    if(scorePar>0):
+        scorePar=scorePar/lettersCount
     gameList.append({"Game":gameCount,"Word":current_word,"Status":status,"Bad Guesses":badGuessPar,"Missed Letters":missedLettersPar,"Score":scorePar})
 
     missedLetters=0
     badGuess=0
     score=0
+    lettersCount=0
 
 
 def guess(real_word):
@@ -48,7 +54,6 @@ def guess(real_word):
     print ("You typed guess.\n")
     global reset
     global badGuess
-    global missedLetters
     global gameCount
     global score
     global middleGame
@@ -57,14 +62,14 @@ def guess(real_word):
         print("Woo Hoo, You are absolutely right")
         reset=True
         gameCount+=1
-        score=score+20
+        middleGame=0
+        score=score+game.calculateWordScore(guessedChars,current_word)
         saveData(gameCount,current_word,"Success",badGuess,missedLetters,score)
         print("here in true")
     else:
         print("Try Again!!")
         reset=False
-        score=score-20
-        missedLetters+=4
+        score=score-(score*0.10)
         badGuess=badGuess+1
         middleGame=1
         print("here in false")
@@ -82,6 +87,7 @@ def checkChar(guessedChar,real_word):
     global guessedCharCount
     global guessedChars
     global score
+    global lettersCount
     for i in range(len(real_word)):
         if(real_word[i]==guessedChar):
             guessedCharCount=guessedCharCount+1
@@ -89,6 +95,7 @@ def checkChar(guessedChar,real_word):
             guessedChars=list(guessedChars)
             guessedChars[index]=guessedChar
             guessedChars="".join(guessedChars)
+            lettersCount+=1
             score=game.calculateScore(guessedChar,score)
 
 
@@ -123,17 +130,22 @@ def letter(real_word):
     global gameCount
     global score
     global middleGame
+    global lettersCount
     guessedChar = input("Enter and alphabet : ")
     if (guessedChar in real_word):
         
-        checkChar(guessedChar,real_word)      
-        print("You guessed "+str(guessedCharCount)+" letters")
+        checkChar(guessedChar,real_word)
+        print("You gussed "+str(guessedCharCount)+" letters")
+        print(score)
 
     else:
         print("Try Again!!")
         missedLetters+=1
-        score=score-5
+        #score=score-game.calculateScore(guessedChar,score)
         middleGame=1
+        lettersCount+=1
+    
+    print("asdafasdfasdfadfasdfadsfasdfadsfaf"+str(guessedCharCount))
     if(guessedCharCount==4) :
         gameCount+=1
         reset=True
@@ -149,18 +161,29 @@ def quitfx():
 
         
     """
-    print ("quit\n")
+    global option
     global middleGame
     global gameCount
-    if(middleGame==1):
-        gameCount+=gameCount
-        saveData(gameCount,current_word,"Gave up",badGuess,missedLetters,score)
-        middleGame=0
-    game.printResults(gameList)  
+    global score
+    print ("quit\n")
+    print("asdfasf")
+    exitOpt=input("Are you sure you want to quit? y/n: ")
+    
+    if(exitOpt=="y"):
+        if(middleGame==1):
+            gameCount+=1
+            score=score-game.calculateWordScore(guessedChars,current_word)
+            saveData(gameCount,current_word,"Gave up",badGuess,missedLetters,score)
+            middleGame=0
+        print("data")
+        game.printResults(gameList)
+        exit()
+    else:
+        option="c"  
 
 
 print("**The great guessing game**")
-option = 'n'
+
       
 wordArray=stringDatabase.readFile()
 
@@ -170,6 +193,7 @@ while(option !="q"):
     if(reset==True):
         randomNum=random.randint(1,len(wordArray))
         current_word=wordArray[randomNum]
+        #current_word="abcd"
     
     print("Current Guess: "+guessedChars)    
     print("Curent word:"+wordArray[randomNum])
@@ -185,3 +209,5 @@ while(option !="q"):
        quitfx()
     else:
        print("Enter correct option!!")
+
+
