@@ -1,4 +1,7 @@
 def readFile():
+    """Reads the word list file
+        
+    """
     wordArray=[]
     with open("four_letters.txt", "r") as f:
         for line in f:
